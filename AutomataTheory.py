@@ -40,7 +40,7 @@ class Automata:
             self.transitions[fromstate] = {tostate : inp}
 
     def addtransition_dict(self, transitions):
-        for fromstate, tostates in transitions.items():
+        for fromstate, tostates in list(transitions.items()):
             for state in tostates:
                 self.addtransition(fromstate, state, tostates[state])
 
@@ -68,15 +68,15 @@ class Automata:
         return allstates
 
     def display(self):
-        print "states:", self.states
-        print "start state: ", self.startstate
-        print "final states:", self.finalstates
-        print "transitions:"
-        for fromstate, tostates in self.transitions.items():
+        print("states:", self.states)
+        print("start state: ", self.startstate)
+        print("final states:", self.finalstates)
+        print("transitions:")
+        for fromstate, tostates in list(self.transitions.items()):
             for state in tostates:
                 for char in tostates[state]:
-                    print "  ",fromstate, "->", state, "on '"+char+"'",
-            print
+                    print("  ",fromstate, "->", state, "on '"+char+"'", end=' ')
+            print()
 
     def getPrintText(self):
         text = "language: {" + ", ".join(self.language) + "}\n"
@@ -85,7 +85,7 @@ class Automata:
         text += "final states: {" + ", ".join(map(str,self.finalstates)) + "}\n"
         text += "transitions:\n"
         linecount = 5
-        for fromstate, tostates in self.transitions.items():
+        for fromstate, tostates in list(self.transitions.items()):
             for state in tostates:
                 for char in tostates[state]:
                     text += "    " + str(fromstate) + " -> " + str(state) + " on '" + char + "'\n"
@@ -100,14 +100,14 @@ class Automata:
         rebuild = Automata(self.language)
         rebuild.setstartstate(translations[self.startstate])
         rebuild.addfinalstates(translations[self.finalstates[0]])
-        for fromstate, tostates in self.transitions.items():
+        for fromstate, tostates in list(self.transitions.items()):
             for state in tostates:
                 rebuild.addtransition(translations[fromstate], translations[state], tostates[state])
         return [rebuild, startnum]
 
     def newBuildFromEquivalentStates(self, equivalent, pos):
         rebuild = Automata(self.language)
-        for fromstate, tostates in self.transitions.items():
+        for fromstate, tostates in list(self.transitions.items()):
             for state in tostates:
                 rebuild.addtransition(pos[fromstate], pos[state], tostates[state])
         rebuild.setstartstate(pos[self.startstate])
@@ -124,7 +124,7 @@ class Automata:
                     dotFile += "s%d [shape=doublecircle]\n" % state
                 else:
                     dotFile += "s%d [shape=circle]\n" % state
-            for fromstate, tostates in self.transitions.items():
+            for fromstate, tostates in list(self.transitions.items()):
                 for state in tostates:
                     for char in tostates[state]:
                         dotFile += 's%d->s%d [label="%s"]\n' % (fromstate, state, char)
@@ -230,15 +230,15 @@ class DFAfromNFA:
                         eclose[s] = nfa.getEClose(s)
                     trstates = trstates.union(eclose[s])
                 if len(trstates) != 0:
-                    if trstates not in allstates.values():
+                    if trstates not in list(allstates.values()):
                         states.append([trstates, count])
                         allstates[count] = trstates
                         toindex = count
                         count +=  1
                     else:
-                        toindex = [k for k, v in allstates.iteritems() if v  ==  trstates][0]
+                        toindex = [k for k, v in allstates.items() if v  ==  trstates][0]
                     dfa.addtransition(fromindex, toindex, char)
-        for value, state in allstates.iteritems():
+        for value, state in allstates.items():
             if nfa.finalstates[0] in state:
                 dfa.addfinalstates(value)
         self.dfa = dfa
@@ -262,8 +262,8 @@ class DFAfromNFA:
         unchecked = dict()
         count = 1
         distinguished = []
-        equivalent = dict(zip(range(len(states)), [{s} for s in states]))
-        pos = dict(zip(states,range(len(states))))
+        equivalent = dict(list(zip(list(range(len(states))), [{s} for s in states])))
+        pos = dict(list(zip(states,list(range(len(states))))))
         for i in range(n-1):
             for j in range(i+1, n):
                 if not ([states[i], states[j]] in distinguished or [states[j], states[i]] in distinguished):
@@ -307,14 +307,14 @@ class DFAfromNFA:
         while newFound and len(unchecked) > 0:
             newFound = False
             toremove = set()
-            for p, pair in unchecked.items():
+            for p, pair in list(unchecked.items()):
                 for tr in pair[2:]:
                     if [tr[0], tr[1]] in distinguished or [tr[1], tr[0]] in distinguished:
                         unchecked.pop(p)
                         distinguished.append([pair[0], pair[1]])
                         newFound = True
                         break
-        for pair in unchecked.values():
+        for pair in list(unchecked.values()):
             p1 = pos[pair[0]]
             p2 = pos[pair[1]]
             if p1 != p2:
@@ -391,7 +391,7 @@ class NFAfromRegex:
             op = self.stack.pop()
             self.processOperator(op)
         if len(self.automata) > 1:
-            print self.automata
+            print(self.automata)
             raise BaseException("Regex could not be parsed successfully")
         self.nfa = self.automata.pop()
         self.nfa.language = language
