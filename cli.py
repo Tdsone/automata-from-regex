@@ -1,8 +1,10 @@
 from AutomataTheory import *
 import sys
 
+from automaton import build_decision_list, build_transition_list, generate_word
+
 def main():
-    inp = "(01*1)*1"
+    inp = "((a+b)+ab)"
     if len(sys.argv)>1:
         inp = sys.argv[1]
     print("Regular Expression: ", inp)
@@ -23,6 +25,12 @@ def main():
         drawGraph(minDFA, "mdfa")
         print("\nGraphs have been created in the code directory")
         print(minDFA.getDotFile())
+
+    transition_list = build_transition_list(minDFA)
+
+    decision_list = build_decision_list(minDFA)
+    
+    print(generate_word(minDFA, decision_list, transition_list))
 
 if __name__  ==  '__main__':
     t = time.time()
